@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xlsxparse_joeypas"
-version = "0.0.1"
+version = "0.0.3"
 authors = [
   { name="Joe Liotta", email="jliotta@uvm.edu" },
 ]
@@ -18,7 +18,8 @@ classifiers = [
 license = "MIT"
 license-files = ["LICEN[CS]E*"]
 dependencies = [
-  "openpyxl"
+  "openpyxl",
+  "typer"
 ]
 
 [project.urls]
@@ -26,4 +27,4 @@ Homepage = "https://github.com/joeypas/xlsxparse"
 Issues = "https://github.com/joeypas/xlsxparse/issues"
 
 [project.scripts]
-ref-finder = "xlsxparse.__main__:main"
+xlsxparse = "xlsxparse_joeypas.cli:app"
