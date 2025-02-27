@@ -9,7 +9,7 @@ from urllib.parse import unquote
 import re
 
 
-def build_defined_ranges(defined_names: DefinedNameDict):
+def build_defined_ranges(defined_names: DefinedNameDict) -> [dict[str, str, CellRange]]:
     defined_names = [x for x in defined_names.items() if not x[0].startswith("_xlchart")]
     ret = []
     for name in defined_names:
@@ -22,14 +22,14 @@ def build_defined_ranges(defined_names: DefinedNameDict):
             })
     return ret
 
-def is_defined(cell: Cell, defined_ranges: list):
+def is_defined(cell: Cell, defined_ranges: [dict[str, str, CellRange]]) -> [str]:
     sheet_name = cell.parent.title
     coord = cell.coordinate
     ranges = [x['name'] for x in defined_ranges if x['sheet'] == sheet_name and not x['range'].isdisjoint(CellRange(coord))]
     return ranges
 
-def extract_references(formula: str, curr_sheet: Worksheet, links: [ExternalLink]):
-    ref_pattern = r"(?:(?: *'?\[([^\]]+)\])?([^'=,]+)'?\!)?([A-Z|$]+\d+(?::[A-Z|$]+\d+)?)"
+def extract_references(formula: str, curr_sheet: Worksheet, links: [ExternalLink]) -> [dict[str, str, str]]:
+    ref_pattern = r"(?:(?: *'?\[([^\]]+)\])?([^'=,\[]+)'?\!)?([A-Z|$]+\d+(?::[A-Z|$]+\d+)?)"
     matches = re.findall(ref_pattern, formula)
     refs = []
 
@@ -47,10 +47,13 @@ def extract_references(formula: str, curr_sheet: Worksheet, links: [ExternalLink
 
     return refs
 
-def get_names(cell: Cell, defined_ranges: list = []):
-    defd = is_defined(cell, defined_ranges)
-    if (len(defd) > 0):
-        return tuple(defd)
+def get_names(cell: Cell, defined_ranges: [dict[str, str, CellRange]] = []):
+    if len(defined_ranges) > 0:
+        defd = is_defined(cell, defined_ranges)
+        if (len(defd) > 0):
+            return tuple(defd)
+
+
     sheet = cell.parent
     row_label = None
     col_label = None
@@ -69,7 +72,11 @@ def get_names(cell: Cell, defined_ranges: list = []):
         i -= 1
     return (row_label, col_label)
 
-def parse_excel_formulas(sheet: Worksheet, links: [ExternalLink], defined_ranges: list = []):
+def parse_excel_formulas(
+    sheet: Worksheet, 
+    links: [ExternalLink], 
+    defined_ranges: [dict[str, str, CellRange]] = []
+) -> dict[dict[str, str, dict]]:
     formulas = {}
 
     for row in sheet.iter_rows():
@@ -84,7 +91,7 @@ def parse_excel_formulas(sheet: Worksheet, links: [ExternalLink], defined_ranges
 
     return formulas
 
-def parse_all_sheets(file_path):
+def parse_all_sheets(file_path) -> dict[dict]:
     wb = load_workbook(file_path, data_only=False)
     defined_ranges = build_defined_ranges(wb.defined_names)
     all_refs = {}
@@ -96,7 +103,7 @@ def parse_all_sheets(file_path):
 
     return all_refs
 
-def parse_single_sheet(file_path, sheet_name):
+def parse_single_sheet(file_path, sheet_name) -> dict[dict]:
     wb = load_workbook(file_path, data_only=False)
     sheet = wb[sheet_name]
     defined_ranges = build_defined_ranges(wb.defined_names)
