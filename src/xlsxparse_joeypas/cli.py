@@ -13,8 +13,8 @@ def entry(
     else:
         refs = parse_all_sheets(file)
         for sheet, item in refs.items():
-            for cell, data in item.items():
-                print(f"Sheet: {sheet}, Cell: {cell}, Formula: {data['formula']}, References: {data['references']}")
+            for cell, data in item['items'].items():
+                print(f"Sheet: {sheet}, Metrics: {data['names']}, Cell: {cell}, Formula: {data['formula']}, References: {data['references']}")
 
 
 app = typer.Typer()
