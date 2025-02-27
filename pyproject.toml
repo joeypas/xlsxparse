@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xlsxparse_joeypas"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
   { name="Joe Liotta", email="jliotta@uvm.edu" },
 ]
