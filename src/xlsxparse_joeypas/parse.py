@@ -12,7 +12,7 @@ def extract(formula, curr_sheet, links):
         ref = {}
         workbook, sheet, cell = match
         if (workbook):
-            ref["workbook"] = PureWindowsPath(unquote(links[int(workbook)-1].file_link.Target)).name
+            ref["file"] = PureWindowsPath(unquote(links[int(workbook)-1].file_link.Target)).name
         if (sheet):
             ref["sheet"] = sheet
         else:
