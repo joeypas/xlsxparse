@@ -91,7 +91,7 @@ def parse_excel_formulas(
 
     return formulas
 
-def parse_all_sheets(file_path) -> dict[dict]:
+def parse_all_sheets(file_path: str) -> dict[dict]:
     wb = load_workbook(file_path, data_only=False)
     defined_ranges = build_defined_ranges(wb.defined_names)
     all_refs = {}
@@ -103,7 +103,7 @@ def parse_all_sheets(file_path) -> dict[dict]:
 
     return all_refs
 
-def parse_single_sheet(file_path, sheet_name) -> dict[dict]:
+def parse_single_sheet(file_path: str, sheet_name: str) -> dict[dict]:
     wb = load_workbook(file_path, data_only=False)
     sheet = wb[sheet_name]
     defined_ranges = build_defined_ranges(wb.defined_names)

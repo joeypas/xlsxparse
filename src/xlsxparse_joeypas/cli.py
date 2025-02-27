@@ -2,16 +2,25 @@ import typer
 import json
 from xlsxparse_joeypas.parse import parse_all_sheets, parse_single_sheet
 from typing_extensions import Annotated
+from typing import Optional
 
+__version__ = "0.1.0"
+
+def version_callback(value: bool):
+    if value:
+        print(f"xlsxparse version: {__version__}")
+        raise typer.Exit()
 
 def entry(
     file: Annotated[str, typer.Argument(help="Path to the .xlsx WorkBook")],
-    sheet_name: Annotated[str, typer.Argument(help="Name of the sheet to parse (if none provided, parse all sheets)")] = "",
-    to_json: Annotated[bool, typer.Option(help="Output file format as json.")] = False,
-    verbose: Annotated[bool, typer.Option(help="Write output to console")] = False,
+    sheet_name: Annotated[str, typer.Argument(help="Name of the sheet to parse (if none provided, parse all sheets)")] = None,
+    to_json: Annotated[bool, typer.Option("--json", help="Output file format as json.")] = False,
+    verbose: Annotated[bool, typer.Option("--verbose", help="Write output to console")] = False,
+    output_file: Annotated[str, typer.Option(help="Name of file to output")] = "output",
+    version: Annotated[Optional[bool], typer.Option("--version", callback=version_callback)] = None,
 ):
     if to_json:
-        with open("output.json", "w+") as txt_file:
+        with open(output_file + ".json", "w+") as txt_file:
             out = []
             if sheet_name:
                 refs = parse_single_sheet(file, sheet_name)
@@ -35,7 +44,7 @@ def entry(
 
             txt_file.write(json.dumps(out, indent=2))
     else:
-        with open("output.txt", "w+") as txt_file:
+        with open(output_file + ".txt", "w+") as txt_file:
             out = []
             if sheet_name:
                 refs = parse_single_sheet(file, sheet_name)
@@ -52,7 +61,6 @@ def entry(
                             print(f"Sheet: {sheet}, Metrics: {data['names']}, Cell: {cell}, Formula: {data['formula']}, References: {data['references']}")
 
             txt_file.writelines(out)
-
 
 
 app = typer.Typer()
