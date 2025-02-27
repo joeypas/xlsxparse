@@ -8,8 +8,14 @@ from pathlib import PureWindowsPath
 from urllib.parse import unquote
 import re
 
-
 def build_defined_ranges(defined_names: DefinedNameDict) -> [dict[str, str, CellRange]]:
+    """Create a dictionary for each defined name in the Workbook.
+
+    Returned dictionary definition:
+    name  -- the defined name
+    sheet -- sheet the name belongs to
+    range -- CellRange object specifing the range of cells the name applies to
+    """
     defined_names = [x for x in defined_names.items() if not x[0].startswith("_xlchart")]
     ret = []
     for name in defined_names:
@@ -23,12 +29,26 @@ def build_defined_ranges(defined_names: DefinedNameDict) -> [dict[str, str, Cell
     return ret
 
 def is_defined(cell: Cell, defined_ranges: [dict[str, str, CellRange]]) -> [str]:
+    """Finds if a cell belongs to a defined name.
+
+    If the cell belongs to one or more names, the function
+    returns a list of the names. Otherwise an empty list is
+    returned.
+
+    defined_ranges argumnet must be a list of dictionaries returned
+    from build_defined_ranges.
+    """
     sheet_name = cell.parent.title
     coord = cell.coordinate
     ranges = [x['name'] for x in defined_ranges if x['sheet'] == sheet_name and not x['range'].isdisjoint(CellRange(coord))]
     return ranges
 
 def extract_references(formula: str, curr_sheet: Worksheet, links: [ExternalLink]) -> [dict[str, str, str]]:
+    """Parse an excel formula for refrences.
+
+    Returns any cells refrenced in the formula, along with
+    what sheet, and what file the cells belong to.
+    """
     ref_pattern = r"(?:(?: *'?\[([^\]]+)\])?([^'=,\[]+)'?\!)?([A-Z|$]+\d+(?::[A-Z|$]+\d+)?)"
     matches = re.findall(ref_pattern, formula)
     refs = []
@@ -48,6 +68,12 @@ def extract_references(formula: str, curr_sheet: Worksheet, links: [ExternalLink
     return refs
 
 def get_names(cell: Cell, defined_ranges: [dict[str, str, CellRange]] = []):
+    """Attempts to find labels for the provided cell.
+
+    If defined_ranges list is provided, the function will
+    try to determine labels using is_defined. Otherwise 
+    searches backwards by row/col.
+    """
     if len(defined_ranges) > 0:
         defd = is_defined(cell, defined_ranges)
         if (len(defd) > 0):
@@ -77,6 +103,7 @@ def parse_excel_formulas(
     links: [ExternalLink], 
     defined_ranges: [dict[str, str, CellRange]] = []
 ) -> dict[dict[str, str, dict]]:
+    """Find all refrences in a given sheet"""
     formulas = {}
 
     for row in sheet.iter_rows():
