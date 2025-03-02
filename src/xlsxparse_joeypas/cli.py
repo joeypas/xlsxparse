@@ -1,8 +1,10 @@
 import typer
 import json
 from xlsxparse_joeypas.parse import parse_all_sheets, parse_single_sheet
+from xlsxparse_joeypas.search import search_cell, search_ref_file, search_ref_sheet, search_ref_file_sheet
 from typing_extensions import Annotated
 from typing import Optional
+from enum import Enum
 
 __version__ = "0.1.0"
 
@@ -11,7 +13,10 @@ def version_callback(value: bool):
         print(f"xlsxparse version: {__version__}")
         raise typer.Exit()
 
-def entry(
+app = typer.Typer(no_args_is_help=True)
+
+@app.command()
+def create(
     file: Annotated[str, typer.Argument(help="Path to the .xlsx WorkBook")],
     sheet_name: Annotated[str, typer.Argument(help="Name of the sheet to parse (if none provided, parse all sheets)")] = None,
     to_json: Annotated[bool, typer.Option("--json", help="Output file format as json.")] = False,
@@ -62,9 +67,30 @@ def entry(
 
             txt_file.writelines(out)
 
+class SearchType(str, Enum):
+    cell = "cell"
+    sheet = "sheet"
+    file = "file"
+    file_sheet = "file-sheet"
 
-app = typer.Typer()
-app.command()(entry)
+@app.command()
+def search(
+    file: Annotated[str, typer.Argument(help="Path to the file.")],
+    string: Annotated[str, typer.Argument(help="String to search for")],
+    stype: Annotated[SearchType, typer.Option(case_sensitive=False)] = SearchType.cell,
+):
+    with open(file, "r") as txt:
+        contents = json.loads(str(txt.read()))
+        if (stype.value == SearchType.cell):
+            print(json.dumps(search_cell(contents, string), indent=2))
+        elif (stype.value == SearchType.file):
+            print(json.dumps(search_ref_file(contents, string), indent=2))
+        elif (stype.value == SearchType.sheet):
+            print(json.dumps(search_ref_sheet(contents, string), indent=2))
+        else:
+            sstring = string.split(", ")
+            print(json.dumps(search_ref_file_sheet(contents, sstring[0], sstring[1]), indent=2))
+
 
 if __name__ == "__main__":
     app()
