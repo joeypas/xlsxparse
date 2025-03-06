@@ -102,7 +102,7 @@ The output JSON file follows this structure:
 
 ## Dependencies
 
-- Python 3.7+
+- Python 3.8+
 - openpyxl
 
 ## Contributing
