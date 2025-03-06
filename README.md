@@ -104,6 +104,7 @@ The output JSON file follows this structure:
 
 - Python 3.8+
 - openpyxl
+- typer
 
 ## Contributing
 
