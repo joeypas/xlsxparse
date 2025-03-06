@@ -85,13 +85,13 @@ def get_names(cell: Cell, defined_ranges: [dict[str, str, CellRange]] = []):
     col_label = None
     i = cell.row
     j = cell.col_idx
-    while (j > 1):
+    while (j >= 1):
         if sheet.cell(i, j).data_type == 's' or sheet.cell(i, j).data_type == 'd':
             row_label = str(sheet.cell(i, j).value)
             break
         j -= 1
     j = cell.col_idx
-    while (i > 1):
+    while (i >= 1):
         if sheet.cell(i, j).data_type == 's' or sheet.cell(i, j).data_type == 'd':
             col_label = str(sheet.cell(i, j).value)
             break

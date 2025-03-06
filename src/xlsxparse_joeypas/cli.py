@@ -6,7 +6,7 @@ from typing_extensions import Annotated
 from typing import Optional
 from enum import Enum
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 def version_callback(value: bool):
     if value:
