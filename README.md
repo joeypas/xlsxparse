@@ -7,7 +7,7 @@ xlsxparse is a Python command-line application that extracts cell references fro
 
 ## Installation
 
-You can install Excel Reference Extractor via pip:
+You can install xlsxparse via pip:
 
 ```sh
 pip install xlsxparse-joeypas
